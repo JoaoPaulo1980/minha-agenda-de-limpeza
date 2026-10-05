@@ -22,6 +22,7 @@ import {
 
 const pilha = []; // cada item: { titulo, html(), ligar(raiz) }
 let aberta = false;
+let voltandoSozinho = 0; // quantos "voltar" o próprio aplicativo pediu ao navegador e ainda não chegaram
 
 function raiz() { return document.getElementById('folha'); }
 
@@ -79,12 +80,13 @@ export function fecharFolhas() {
 function encerrarHistorico() {
   if (aberta) {
     aberta = false;
-    if (history.state && history.state.folha) history.back();
+    if (history.state && history.state.folha) { voltandoSozinho += 1; history.back(); }
   }
 }
 
 /** O botão "voltar" do celular fecha a janela em vez de sair do aplicativo. */
 export function aoVoltarDoNavegador() {
+  if (voltandoSozinho > 0) { voltandoSozinho -= 1; return; } // foi o próprio app que voltou
   if (aberta) {
     aberta = false;
     pilha.length = 0;
