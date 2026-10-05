@@ -22,7 +22,6 @@ import {
 
 const pilha = []; // cada item: { titulo, html(), ligar(raiz) }
 let aberta = false;
-let voltandoSozinho = 0; // quantos "voltar" o próprio aplicativo pediu ao navegador e ainda não chegaram
 
 function raiz() { return document.getElementById('folha'); }
 
@@ -77,16 +76,15 @@ export function fecharFolhas() {
   encerrarHistorico();
 }
 
+// Nunca chamamos history.back() por conta própria (isso causava corridas). Abrir uma janela empurra
+// uma entrada no histórico; ao fechar, a entrada fica lá, inofensiva: o "voltar" do celular só fecha
+// a janela quando há uma aberta; sem janela aberta, ele apenas consome essa entrada sobrando.
 function encerrarHistorico() {
-  if (aberta) {
-    aberta = false;
-    if (history.state && history.state.folha) { voltandoSozinho += 1; history.back(); }
-  }
+  aberta = false;
 }
 
 /** O botão "voltar" do celular fecha a janela em vez de sair do aplicativo. */
 export function aoVoltarDoNavegador() {
-  if (voltandoSozinho > 0) { voltandoSozinho -= 1; return; } // foi o próprio app que voltou
   if (aberta) {
     aberta = false;
     pilha.length = 0;
